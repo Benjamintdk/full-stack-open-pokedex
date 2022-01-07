@@ -35,7 +35,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.33.0
         if: ${{ github.event_name == 'push' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN && !contains(join(toJson(github.event.commits.*.message), ' '), '#skip')}}
           DEFAULT_BUMP: patch
           RELEASE_BRANCHES: master
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
