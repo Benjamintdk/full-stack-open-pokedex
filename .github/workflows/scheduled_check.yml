@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  scheduled check:
+  scheduled_check:
     runs-on: ubuntu-18.04
     steps:
       - name: Check the deployed service URL
