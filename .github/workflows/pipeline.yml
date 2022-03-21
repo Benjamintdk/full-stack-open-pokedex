@@ -24,25 +24,24 @@ jobs:
         run: npm run build
       - name: test
         run: npm run test
-      - name: e2e tests
-        uses: cypress-io/github-action@v2
-        with:
-          command: npm run test:e2e
-          start: npm run start-prod
-          wait-on: http://localhost:5000
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@master
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
-          RELEASE_BRANCHES: master
-      - name: setup git config
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
+      # - name: e2e tests
+      #   uses: cypress-io/github-action@v2
+      #   with:
+      #     command: npm run test:e2e
+      #     start: npm run start-prod
+      #     wait-on: http://localhost:5000
+      # - name: Bump version and push tag
+      #   uses: anothrNick/github-tag-action@master
+      #   if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     DEFAULT_BUMP: patch
+      #     RELEASE_BRANCHES: master
       - name: Deployment to Github Pages
-        run: npm run deploy
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: dist # The folder the action should deploy.
       - name: Deployment to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         if: ${{ github.event_name == 'push' }}
@@ -54,18 +53,18 @@ jobs:
           checkstring: "ok"
           delay: 5
           rollbackonhealthcheckfailed: true
-      - name: Slack notification
-        uses: 8398a7/action-slack@v3
-        with:
-          status: custom
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest
-          custom_payload: |
-            {
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: always() # Pick up events even if the job fails or is canceled.
+      # - name: Slack notification
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: custom
+      #     fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest
+      #     custom_payload: |
+      #       {
+      #         attachments: [{
+      #           color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+      #           text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+      #         }]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+      #   if: always() # Pick up events even if the job fails or is canceled.
